@@ -1,0 +1,34 @@
+name: "NAIS login"
+description: "Login to registry used by the NAIS platform"
+inputs:
+  config:
+    description: "Configuration. See readme for details"
+    required: true
+outputs:
+  registry:
+    description: "Registry URL"
+    value: ${{ steps.setup.outputs.gar_registry_url }}
+runs:
+  using: "composite"
+  steps:
+    - name: Setup environment
+      shell: bash
+      id: "setup"
+      run: |
+        echo '${{ inputs.config }}' | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' >> $GITHUB_OUTPUT
+    - id: "auth"
+      name: "Authenticate to Google Cloud"
+      uses: "google-github-actions/auth@v1.0.0"
+      with:
+        workload_identity_provider: ${{ steps.setup.outputs.workload_identity_provider }}
+        service_account: ${{ steps.setup.outputs.gar_service_account }}
+        token_format: "access_token"
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Login to registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ steps.setup.outputs.gar_registry_url }}
+        username: "oauth2accesstoken"
+        password: "${{ steps.auth.outputs.access_token }}"
