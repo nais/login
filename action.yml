@@ -1,12 +1,6 @@
 name: "NAIS login"
 description: "Login to registry used by the NAIS platform"
 inputs:
-  project_id:
-    description: "Google Cloud project ID"
-    required: true
-  identity_provider:
-    description: "Workload Identity Provider"
-    required: true
   team:
     description: "Team slug"
     required: true
@@ -34,13 +28,13 @@ runs:
         truncatedSlug=$(echo -n "${slug:0:$slugLength}" | sed 's/-$//')
         truncatedHash=$(echo -n "$hash" | head -c $hashLength)
 
-        echo "sa_email=$prefix-$truncatedSlug-$truncatedHash@${{ inputs.project_id }}.iam.gserviceaccount.com" >> $GITHUB_OUTPUT
-        echo "gar_registry_url=europe-north1-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.team }}" >> $GITHUB_OUTPUT
+        echo "sa_email=$prefix-$truncatedSlug-$truncatedHash@${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}.iam.gserviceaccount.com" >> $GITHUB_OUTPUT
+        echo "gar_registry_url=europe-north1-docker.pkg.dev/${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}/${{ inputs.team }}" >> $GITHUB_OUTPUT
     - id: "auth"
       name: "Authenticate to Google Cloud"
       uses: "google-github-actions/auth@v1.0.0"
       with:
-        workload_identity_provider: ${{ inputs.identity_provider }}
+        workload_identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
         service_account: ${{ steps.setup.outputs.sa_email }}
         token_format: "access_token"
     - name: Set up Docker Buildx
