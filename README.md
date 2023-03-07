@@ -3,9 +3,9 @@
 ```yaml
 - uses: nais/login@v0
   with:
-    project_id: ${{ inputs.project_id }}
-    identity_provider: ${{ inputs.identity_provider }}
-    team: ${{ inputs.team }}
+    project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+    identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+    team: myteam
 ```
 
 ## Configuration
