@@ -22,13 +22,13 @@ runs:
       id: "setup"
       run: |
         if [ -z "${{ inputs.project_id }}" ]; then
-          echo "::error project_id not set. Please provide as input."
+          echo "::error ::project_id not set. Please provide as input."
           exit 1
         elif [ -z "${{ inputs.identity_provider }}" ]; then
-          echo "::error identity_provider not set. Please provide as input."
+          echo "::error ::identity_provider not set. Please provide as input."
           exit 1
         elif [ -z "${{ inputs.team }}" ]; then
-          echo "::error team not set. Please provide as input."
+          echo "::error ::team not set. Please provide as input."
           exit 1
         fi
         slug=${{ inputs.team }}
@@ -58,12 +58,16 @@ runs:
       shell: bash
       run: |
         cat <<EOF
-        ::error Failed to authenticate to Google Cloud.
-        Ensure that your team has write access to the Github-repository.
-        Ensure that you grant the following persmissions in your workflow:
-          contents: "read"
-          id-token: "write"
+        ::error ::Failed to authenticate to Google Cloud.
         EOF
+
+        echo "Ensure that your team has write access to the Github-repository." >> $GITHUB_STEP_SUMMARY
+        echo "Ensure that you grant the following persmissions in your workflow:" >> $GITHUB_STEP_SUMMARY
+        echo '```yaml' >> $GITHUB_STEP_SUMMARY
+        echo "permissions:" >> $GITHUB_STEP_SUMMARY
+        echo "   contents: read" >> $GITHUB_STEP_SUMMARY
+        echo "   id-token: write" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
     - name: Set up Docker Buildx
       id: buildx
       uses: docker/setup-buildx-action@v2
