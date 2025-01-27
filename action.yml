@@ -3,10 +3,10 @@ description: "Login to registry used by the NAIS platform"
 inputs:
   project_id:
     description: "Google Cloud project ID"
-    required: true
+    required: false
   identity_provider:
     description: "Workload Identity Provider"
-    required: true
+    required: false
   team:
     description: "Team slug"
     required: true
@@ -21,16 +21,30 @@ runs:
       shell: bash
       id: "setup"
       run: |
-        if [ -z "${{ inputs.project_id }}" ]; then
-          echo "::error ::project_id not set. Please provide as input."
-          exit 1
+        if [ -z "${{ inputs.project_id}}" ]; then
+          echo "::notice ::project_id is deprecated and should not be set"
         elif [ -z "${{ inputs.identity_provider }}" ]; then
-          echo "::error ::identity_provider not set. Please provide as input."
+          echo "::notice ::identity_provider is deprecated and should not be set"
+        fi
+
+        ::group::wget
+        wget https://storage.googleapis.com/github-deploy-data/$GITHUB_REPOSITORY_OWNER.json --output-document deploy.json
+        ::endgroup::
+
+        project_id=$(jq --raw-output '.NAIS_MANAGEMENT_PROJECT_ID' < deploy.json)
+        identity_provider=$(jq --raw-output '.NAIS_WORKLOAD_IDENTITY_PROVIDER' < deploy.json)
+
+        if [ -z "$project_id" ]; then
+          echo "::error ::project_id not set. Please contact the nais team"
+          exit 1
+        elif [ -z "$identity_provider" ]; then
+          echo "::error ::identity_provider not set. Please contact the nais team"
           exit 1
         elif [ -z "${{ inputs.team }}" ]; then
-          echo "::error ::team not set. Please provide as input."
+          echo "::error ::team not set. Please provide as input"
           exit 1
         fi
+
         slug=${{ inputs.team }}
         prefix="gar"
         maxLength=30
@@ -44,8 +58,8 @@ runs:
         truncatedSlug=$(echo -n "${slug:0:$slugLength}" | sed 's/-$//')
         truncatedHash=$(echo -n "$hash" | head -c $hashLength)
 
-        echo "sa_email=$prefix-$truncatedSlug-$truncatedHash@${{ inputs.project_id }}.iam.gserviceaccount.com" >> $GITHUB_OUTPUT
-        echo "gar_registry_url=europe-north1-docker.pkg.dev/${{ inputs.project_id }}/${{ inputs.team }}" >> $GITHUB_OUTPUT
+        echo "sa_email=$prefix-$truncatedSlug-$truncatedHash@$project_id.iam.gserviceaccount.com" >> $GITHUB_OUTPUT
+        echo "gar_registry_url=europe-north1-docker.pkg.dev/$project_id/${{ inputs.team }}" >> $GITHUB_OUTPUT
     - id: "auth"
       name: "Authenticate to Google Cloud"
       uses: "google-github-actions/auth@v2"
