@@ -22,9 +22,9 @@ runs:
       id: "setup"
       run: |
         if [ -z "${{ inputs.project_id}}" ]; then
-          echo "::notice ::project_id is deprecated and should not be set"
+          echo "::notice ::project_id is deprecated and should not be set, please remove from your workflow. The Github environment variable will be removed from the organization after 2025-03-03"
         elif [ -z "${{ inputs.identity_provider }}" ]; then
-          echo "::notice ::identity_provider is deprecated and should not be set"
+          echo "::notice ::identity_provider is deprecated and should not be set, please remove from your workflow. The Github environment variable will be removed from the organization after 2025-03-03"
         fi
 
         echo ::group::wget
