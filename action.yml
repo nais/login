@@ -61,13 +61,14 @@ runs:
         truncatedSlug=$(echo -n "${slug:0:$slugLength}" | sed 's/-$//')
         truncatedHash=$(echo -n "$hash" | head -c $hashLength)
 
+        echo "identity_provider=$identity_provider" >> $GITHUB_OUTPUT
         echo "sa_email=$prefix-$truncatedSlug-$truncatedHash@$project_id.iam.gserviceaccount.com" >> $GITHUB_OUTPUT
         echo "gar_registry_url=europe-north1-docker.pkg.dev/$project_id/${{ inputs.team }}" >> $GITHUB_OUTPUT
     - id: "auth"
       name: "Authenticate to Google Cloud"
       uses: "google-github-actions/auth@v2"
       with:
-        workload_identity_provider: ${{ inputs.identity_provider }}
+        workload_identity_provider: ${{ steps.setup.outputs.identity_provider }}
         service_account: ${{ steps.setup.outputs.sa_email }}
         token_format: "access_token"
     - name: "Handle failure"
