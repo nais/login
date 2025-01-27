@@ -31,6 +31,7 @@ runs:
 
         echo ::group::wget
         wget https://storage.googleapis.com/github-deploy-data/$GITHUB_REPOSITORY_OWNER.json --output-document deploy.json
+        cat deploy.json
         echo ::endgroup::
 
         project_id=$(jq --raw-output '.NAIS_MANAGEMENT_PROJECT_ID' < deploy.json)
