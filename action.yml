@@ -10,6 +10,9 @@ inputs:
   team:
     description: "Team slug"
     required: true
+  prefix:
+    description: Prefix for the service account e-mail
+    default: "gar"
 outputs:
   registry:
     description: "Registry URL"
@@ -49,7 +52,7 @@ runs:
         fi
 
         slug=${{ inputs.team }}
-        prefix="gar"
+        prefix=${{ inputs.prefix }}
         maxLength=30
 
         hash=$(echo -n "$slug" | sha256sum | cut -d ' ' -f 1)
