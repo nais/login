@@ -25,20 +25,24 @@ runs:
       id: "setup"
       run: |
         if [ -n "${{ inputs.project_id}}" ]; then
-          echo "::notice ::project_id is deprecated and should not be set, please remove from your workflow. The Github environment variable will be removed from the organization after 2025-03-03."
+          echo "::notice ::project_id is deprecated and should not be set, please remove from your workflow. The Github environment variable will be removed from the organization in the future"
         fi
 
         if [ -n "${{ inputs.identity_provider }}" ]; then
-          echo "::notice ::identity_provider is deprecated and should not be set, please remove from your workflow. The Github environment variable will be removed from the organization after 2025-03-03."
+          echo "::notice ::identity_provider is deprecated and should not be set, please remove from your workflow. The Github environment variable will be removed from the organization in the future"
         fi
 
-        echo ::group::wget
-        wget https://storage.googleapis.com/github-deploy-data/$GITHUB_REPOSITORY_OWNER.json --output-document deploy.json
-        cat deploy.json
-        echo ::endgroup::
+        wget -q -O deploy.json https://storage.googleapis.com/github-deploy-data/$GITHUB_REPOSITORY_OWNER.json 2>/dev/null
+        WGET_EXIT_CODE=$?
 
-        project_id=$(jq --raw-output '.NAIS_MANAGEMENT_PROJECT_ID' < deploy.json)
-        identity_provider=$(jq --raw-output '.NAIS_WORKLOAD_IDENTITY_PROVIDER' < deploy.json)
+        if [ $WGET_EXIT_CODE -ne 0 ]; then
+            echo "::warning ::failed getting deploy_data, using fallback"
+            project_id="${{ inputs.project_id }}"
+            identity_provider="${{ inputs.identity_provider }}"
+        else
+            project_id=$(jq --raw-output '.NAIS_MANAGEMENT_PROJECT_ID' < deploy.json)
+            identity_provider=$(jq --raw-output '.NAIS_WORKLOAD_IDENTITY_PROVIDER' < deploy.json)
+        fi
 
         if [ -z "$project_id" ]; then
           echo "::error ::project_id not set. Please contact the nais team"
