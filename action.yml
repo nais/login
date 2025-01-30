@@ -32,7 +32,8 @@ runs:
           echo "::notice ::identity_provider is deprecated and should not be set, please remove from your workflow. The Github environment variable will be removed from the organization in the future"
         fi
 
-        wget -q -O deploy.json https://storage.googleapis.com/github-deploy-data/$GITHUB_REPOSITORY_OWNER.json 2>/dev/null
+        set +o pipefail
+        wget -O deploy.json https://storage.googleapis.com/github-deploy-data/$GITHUB_REPOSITORY_OWNER.json 2>/dev/null || true
         WGET_EXIT_CODE=$?
 
         if [ $WGET_EXIT_CODE -ne 0 ]; then
@@ -54,6 +55,7 @@ runs:
           echo "::error ::team not set. Please provide as input"
           exit 1
         fi
+        set -o pipefail
 
         slug=${{ inputs.team }}
         prefix=${{ inputs.prefix }}
