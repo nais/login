@@ -33,7 +33,7 @@ runs:
         fi
 
         set +o pipefail
-        wget -O deploy.json https://storage.googleapis.com/github-deploy-data/$GITHUB_REPOSITORY_OWNER.json 2>/dev/null || true
+        wget -O deploy.json https://storage.googleapis.com/github-deploy-data/$GITHUB_REPOSITORY_OWNER.json 2>/dev/null
         WGET_EXIT_CODE=$?
 
         if [ $WGET_EXIT_CODE -ne 0 ]; then
