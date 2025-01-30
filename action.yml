@@ -33,6 +33,7 @@ runs:
         fi
 
         set +o pipefail
+        set +e
         wget -O deploy.json https://storage.googleapis.com/github-deploy-data/$GITHUB_REPOSITORY_OWNER.json 2>/dev/null
         WGET_EXIT_CODE=$?
 
@@ -56,6 +57,7 @@ runs:
           exit 1
         fi
         set -o pipefail
+        set -e
 
         slug=${{ inputs.team }}
         prefix=${{ inputs.prefix }}
