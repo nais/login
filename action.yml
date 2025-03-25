@@ -34,7 +34,8 @@ runs:
 
         set +o pipefail
         set +e
-        wget -O deploy.json https://storage.googleapis.com/github-deploy-data/$GITHUB_REPOSITORY_OWNER.json 2>/dev/null
+        DEPLOY_JSON=$(mktemp)
+        wget -O "$DEPLOY_JSON" https://storage.googleapis.com/github-deploy-data/$GITHUB_REPOSITORY_OWNER.json 2>/dev/null
         WGET_EXIT_CODE=$?
 
         if [ $WGET_EXIT_CODE -ne 0 ]; then
@@ -42,8 +43,8 @@ runs:
             project_id="${{ inputs.project_id }}"
             identity_provider="${{ inputs.identity_provider }}"
         else
-            project_id=$(jq --raw-output '.NAIS_MANAGEMENT_PROJECT_ID' < deploy.json)
-            identity_provider=$(jq --raw-output '.NAIS_WORKLOAD_IDENTITY_PROVIDER' < deploy.json)
+            project_id=$(jq --raw-output '.NAIS_MANAGEMENT_PROJECT_ID' < "$DEPLOY_JSON")
+            identity_provider=$(jq --raw-output '.NAIS_WORKLOAD_IDENTITY_PROVIDER' < "$DEPLOY_JSON")
         fi
 
         if [ -z "$project_id" ]; then
