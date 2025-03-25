@@ -35,7 +35,7 @@ runs:
         set +o pipefail
         set +e
         DEPLOY_JSON=$(mktemp)
-        wget -O "$DEPLOY_JSON" https://storage.googleapis.com/github-deploy-data/$GITHUB_REPOSITORY_OWNER.json 2>/dev/null
+        wget -O "$DEPLOY_JSON" https://storage.googleapis.com/github-deploy-data/"$GITHUB_REPOSITORY_OWNER.json" 2>/dev/null
         WGET_EXIT_CODE=$?
 
         if [ $WGET_EXIT_CODE -ne 0 ]; then
