@@ -89,6 +89,8 @@ runs:
       run: |
         cat <<EOF
         ::error ::Failed to authenticate to Google Cloud.
+        ::error ::Ensure that the repository is authorized in the NAIS Console.
+        ::error ::See summary for more details.
         EOF
 
         echo "Ensure that your team has write access to the Github-repository." >> $GITHUB_STEP_SUMMARY
