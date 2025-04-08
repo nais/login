@@ -95,7 +95,7 @@ runs:
         echo "And that the repo is authorized through NAIS Console." >> $GITHUB_STEP_SUMMARY
         echo "1. Open NAIS Console in your browser and select your team." >> $GITHUB_STEP_SUMMARY
         echo "2. Select the Repositories tab" >> $GITHUB_STEP_SUMMARY
-        echo "3. Find the repository you want to deploy from, and click Authorize" >> $GITHUB_STEP_SUMMARY
+        echo '3. Ensure that `'$GITHUB_REPOSITORY'` exists in the list, or add it' >> $GITHUB_STEP_SUMMARY
 
         echo "Ensure that you grant the following persmissions in your workflow:" >> $GITHUB_STEP_SUMMARY
         echo '```yaml' >> $GITHUB_STEP_SUMMARY
