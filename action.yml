@@ -1,5 +1,5 @@
-name: "NAIS login"
-description: "Login to registry used by the NAIS platform"
+name: "Nais login"
+description: "Login to registry used by the Nais platform"
 inputs:
   project_id:
     description: "Google Cloud project ID"
@@ -89,13 +89,13 @@ runs:
       run: |
         cat <<EOF
         ::error ::Failed to authenticate to Google Cloud.
-        ::error ::Ensure that the repository is authorized in the NAIS Console.
+        ::error ::Ensure that the repository is authorized in the Nais Console.
         ::error ::See summary for more details.
         EOF
 
         echo "Ensure that your team has write access to the Github-repository." >> $GITHUB_STEP_SUMMARY
-        echo "And that the repo is authorized through NAIS Console." >> $GITHUB_STEP_SUMMARY
-        echo "1. Open NAIS Console in your browser and select your team." >> $GITHUB_STEP_SUMMARY
+        echo "And that the repo is authorized through Nais Console." >> $GITHUB_STEP_SUMMARY
+        echo "1. Open Nais Console in your browser and select your team." >> $GITHUB_STEP_SUMMARY
         echo "2. Select the Repositories tab" >> $GITHUB_STEP_SUMMARY
         echo '3. Ensure that `'$GITHUB_REPOSITORY'` exists in the list, or add it' >> $GITHUB_STEP_SUMMARY
         echo
