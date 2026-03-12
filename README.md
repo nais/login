@@ -12,6 +12,28 @@
 
 The intention is for the Github organization administrator to create a secret with the workload identity provider url and a variable containing the Nais management project id.
 
+## Dependency pinning
+
+We use [ratchet](https://github.com/sethvargo/ratchet) to pin GitHub Actions to commit SHAs, with the source version constraint stored as an inline comment:
+
+```yaml
+uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # ratchet:docker/login-action@v4
+```
+
+### Update action dependencies
+
+1. Upgrade all GitHub Action references to the latest major and re-pin them:
+
+```bash
+docker run --rm -v "${PWD}:${PWD}" -w "${PWD}" ghcr.io/sethvargo/ratchet:latest upgrade action.yml README.md .github/workflows/*.yml
+```
+
+2. Verify that all references are pinned:
+
+```bash
+docker run --rm -v "${PWD}:${PWD}" -w "${PWD}" ghcr.io/sethvargo/ratchet:latest lint action.yml README.md .github/workflows/*.yml
+```
+
 ## Use case example: Trivy security scan in a reusable workflow
 
 Below is a [reusable Github Actions workflow](https://docs.github.com/en/actions/sharing-automations/reusing-workflows). The `nais/login` Github Action is used to authentice with an artifact registry, which is necessary for the `aquasecurity/trivy-action` Github Action to be able to download a Docker image, so that the image can be scanned for security issues.
