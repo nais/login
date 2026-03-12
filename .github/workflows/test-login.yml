@@ -55,6 +55,7 @@ jobs:
         uses: ./
         with:
           team: nais
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
 
       - name: Verify registry output is produced
         run: test -n "${{ steps.login.outputs.registry }}"
