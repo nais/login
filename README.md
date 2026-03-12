@@ -33,7 +33,7 @@ jobs:
           team: <your team name here>
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@bceef37a45815d6c5cfea1861a414ec7dbc00242 # ratchet:aquasecurity/trivy-action@v0
         with:
           image-ref: '${{ inputs.image }}'
           format: 'sarif'
@@ -42,7 +42,7 @@ jobs:
           limit-severities-for-sarif: true
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # ratchet:github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
 ```

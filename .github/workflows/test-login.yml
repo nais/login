@@ -1,0 +1,36 @@
+name: Test login action
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test-login:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6
+
+      - name: Validate workflow with actionlint
+        uses: docker://rhysd/actionlint:1.7.11
+
+      - name: Run login action with invalid identity
+        id: login
+        continue-on-error: true
+        uses: ./
+        with:
+          team: nais
+          project_id: test-project
+          identity_provider: invalid-provider
+
+      - name: Verify login action fails on invalid identity
+        if: ${{ steps.login.outcome != 'failure' }}
+        run: |
+          echo "Expected login action to fail with invalid identity provider"
+          exit 1
