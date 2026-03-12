@@ -23,12 +23,17 @@ runs:
     - name: Setup environment
       shell: bash
       id: "setup"
+      env:
+        INPUT_PROJECT_ID: ${{ inputs.project_id }}
+        INPUT_IDENTITY_PROVIDER: ${{ inputs.identity_provider }}
+        INPUT_TEAM: ${{ inputs.team }}
+        INPUT_PREFIX: ${{ inputs.prefix }}
       run: |
-        if [ -n "${{ inputs.project_id}}" ]; then
+        if [ -n "$INPUT_PROJECT_ID" ]; then
           echo "::notice ::project_id is deprecated and should not be set, please remove from your workflow. The Github environment variable will be removed from the organization in the future"
         fi
 
-        if [ -n "${{ inputs.identity_provider }}" ]; then
+        if [ -n "$INPUT_IDENTITY_PROVIDER" ]; then
           echo "::notice ::identity_provider is deprecated and should not be set, please remove from your workflow. The Github environment variable will be removed from the organization in the future"
         fi
 
@@ -40,8 +45,8 @@ runs:
 
         if [ $WGET_EXIT_CODE -ne 0 ]; then
             echo "::warning ::failed getting deploy_data, using fallback"
-            project_id="${{ inputs.project_id }}"
-            identity_provider="${{ inputs.identity_provider }}"
+            project_id="$INPUT_PROJECT_ID"
+            identity_provider="$INPUT_IDENTITY_PROVIDER"
         else
             project_id=$(jq --raw-output '.NAIS_MANAGEMENT_PROJECT_ID' < "$DEPLOY_JSON")
             identity_provider=$(jq --raw-output '.NAIS_WORKLOAD_IDENTITY_PROVIDER' < "$DEPLOY_JSON")
@@ -53,29 +58,27 @@ runs:
         elif [ -z "$identity_provider" ]; then
           echo "::error ::identity_provider not set. Please contact the nais team"
           exit 1
-        elif [ -z "${{ inputs.team }}" ]; then
+        elif [ -z "$INPUT_TEAM" ]; then
           echo "::error ::team not set. Please provide as input"
           exit 1
         fi
         set -o pipefail
         set -e
 
-        slug=${{ inputs.team }}
-        prefix=${{ inputs.prefix }}
         maxLength=30
 
-        hash=$(echo -n "$slug" | sha256sum | cut -d ' ' -f 1)
+        hash=$(echo -n "$INPUT_TEAM" | sha256sum | cut -d ' ' -f 1)
 
-        prefixLength=${#prefix}
+        prefixLength=${#INPUT_PREFIX}
         hashLength=4
         slugLength=$((maxLength - prefixLength - hashLength - 2))
 
-        truncatedSlug=$(echo -n "${slug:0:$slugLength}" | sed 's/-$//')
+        truncatedSlug=$(echo -n "${INPUT_TEAM:0:$slugLength}" | sed 's/-$//')
         truncatedHash=$(echo -n "$hash" | head -c $hashLength)
 
         echo "identity_provider=$identity_provider" >> $GITHUB_OUTPUT
-        echo "sa_email=$prefix-$truncatedSlug-$truncatedHash@$project_id.iam.gserviceaccount.com" >> $GITHUB_OUTPUT
-        echo "gar_registry_url=europe-north1-docker.pkg.dev/$project_id/${{ inputs.team }}" >> $GITHUB_OUTPUT
+        echo "sa_email=$INPUT_PREFIX-$truncatedSlug-$truncatedHash@$project_id.iam.gserviceaccount.com" >> $GITHUB_OUTPUT
+        echo "gar_registry_url=europe-north1-docker.pkg.dev/$project_id/$INPUT_TEAM" >> $GITHUB_OUTPUT
     - id: "auth"
       name: "Authenticate to Google Cloud"
       uses: "google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093" # ratchet:google-github-actions/auth@v3
