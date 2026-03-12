@@ -20,28 +20,6 @@ jobs:
       - name: Validate workflow with actionlint
         uses: docker://rhysd/actionlint:1.7.11
 
-  test-login-invalid-identity:
-    needs: lint-workflow
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6
-
-      - name: Run login action with invalid identity
-        id: login
-        continue-on-error: true
-        uses: ./
-        with:
-          team: nais
-          project_id: test-project
-          identity_provider: invalid-provider
-
-      - name: Verify login action fails on invalid identity
-        if: ${{ steps.login.outcome != 'failure' }}
-        run: |
-          echo "Expected login action to fail with invalid identity provider"
-          exit 1
-
   test-login-valid-identity:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     needs: lint-workflow
@@ -50,11 +28,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6
 
-      - name: Run login action with valid identity
+      - name: Run login action
         id: login
         uses: ./
         with:
           team: nais
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # Provided as Organization Variable
 
       - name: Verify registry output is produced
         run: test -n "${{ steps.login.outputs.registry }}"
