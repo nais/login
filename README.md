@@ -25,13 +25,13 @@ uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # ratchet:doc
 1. Upgrade all GitHub Action references to the latest major and re-pin them:
 
 ```bash
-docker run --rm -v "${PWD}:${PWD}" -w "${PWD}" ghcr.io/sethvargo/ratchet:latest upgrade action.yml README.md .github/workflows/*.yml
+ratchet upgrade action.yml README.md .github/workflows/*.yml
 ```
 
 2. Verify that all references are pinned:
 
 ```bash
-docker run --rm -v "${PWD}:${PWD}" -w "${PWD}" ghcr.io/sethvargo/ratchet:latest lint action.yml README.md .github/workflows/*.yml
+ratchet lint action.yml README.md .github/workflows/*.yml
 ```
 
 ## Use case example: Trivy security scan in a reusable workflow
