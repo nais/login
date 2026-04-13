@@ -29,14 +29,6 @@ runs:
         INPUT_TEAM: ${{ inputs.team }}
         INPUT_PREFIX: ${{ inputs.prefix }}
       run: |
-        if [ -n "$INPUT_PROJECT_ID" ]; then
-          echo "::notice ::project_id is deprecated and should not be set, please remove from your workflow. The Github environment variable will be removed from the organization in the future"
-        fi
-
-        if [ -n "$INPUT_IDENTITY_PROVIDER" ]; then
-          echo "::notice ::identity_provider is deprecated and should not be set, please remove from your workflow. The Github environment variable will be removed from the organization in the future"
-        fi
-
         set +o pipefail
         set +e
         DEPLOY_JSON=$(mktemp)
