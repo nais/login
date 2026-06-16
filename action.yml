@@ -88,7 +88,7 @@ runs:
         ::error ::See summary for more details.
         EOF
 
-        echo "Ensure that your team has write access to the Github-repository." >> $GITHUB_STEP_SUMMARY
+        echo "Ensure that your team (**${{ inputs.team }}**) has write access to the Github-repository." >> $GITHUB_STEP_SUMMARY
         echo "And that the repo is authorized through Nais Console." >> $GITHUB_STEP_SUMMARY
         echo "1. Open Nais Console in your browser and select your team." >> $GITHUB_STEP_SUMMARY
         echo "2. Select the Repositories tab" >> $GITHUB_STEP_SUMMARY
