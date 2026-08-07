@@ -57,6 +57,30 @@ runs:
         set -o pipefail
         set -e
 
+        # Fail early if the sub claim exceeds the 127-byte limit for GCP Workload Identity Federation attributes.
+        if [ -n "$ACTIONS_ID_TOKEN_REQUEST_TOKEN" ] && [ -n "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+          response=$(curl -sf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL") \
+            || { echo "::error ::Failed to request GitHub OIDC token"; exit 1; }
+          id_token=$(echo "$response" | jq --raw-output '.value')
+          sub=$(echo "$id_token" \
+            | jq -R -r 'split(".")[1]        # take payload segment
+                        | gsub("-"; "+")     # base64url -> base64
+                        | gsub("_"; "/")
+                        | . + "==="          # add padding
+                        | @base64d           # decode
+                        | fromjson           # parse JSON
+                        | .sub')
+          subLength=$(printf '%s' "$sub" | wc -c | tr -d ' ')
+          if [ "$subLength" -gt 127 ]; then
+            echo "::error ::The GitHub OIDC token subject claim [sub=$sub, length=$subLength bytes] exceeds the 127-byte limit for GCP Workload Identity Federation attributes."
+            echo "::error ::This is caused by a combination of a long repository name and/or branch name. Try using a shorter branch name."
+            exit 1
+          fi
+        else
+          echo "::warning ::ACTIONS_ID_TOKEN_REQUEST_TOKEN not set, skipping OIDC subject length check. Ensure the workflow grants id-token: write."
+        fi
+
         maxLength=30
 
         hash=$(echo -n "$INPUT_TEAM" | sha256sum | cut -d ' ' -f 1)
